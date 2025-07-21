@@ -52,7 +52,7 @@ exports.handleOAuthCallback = async (req, res) => {
 
           if (existingAccount) {
             console.log('❌ Account already exists for this user');
-            return res.redirect(`http://localhost:3000/dashboard?error=Account already connected`);
+            return res.redirect(`${process.env.FRONTEND_URL}/dashboard?error=Account already connected`);
           }
 
           // Create new Gmail account linked to the EXISTING user
@@ -66,7 +66,7 @@ exports.handleOAuthCallback = async (req, res) => {
           });
           
           console.log('✅ Successfully added Gmail account:', userInfo.email, 'to user:', stateData.userId);
-          return res.redirect(`http://localhost:3000/dashboard?message=Gmail account ${userInfo.email} added successfully`);
+          return res.redirect(`${process.env.FRONTEND_URL}/dashboard?message=Gmail account ${userInfo.email} added successfully`);
         }
       } catch (stateError) {
         console.log('⚠️ Could not parse state, treating as new sign-in');
@@ -116,7 +116,7 @@ exports.handleOAuthCallback = async (req, res) => {
     );
 
     // Redirect to frontend dashboard with token
-    res.redirect(`http://localhost:3000/dashboard?token=${jwtToken}`);
+    res.redirect(`${process.env.FRONTEND_URL}/dashboard?token=${jwtToken}`);
 
   } catch (err) {
     console.error('❌ OAuth error:', err);
