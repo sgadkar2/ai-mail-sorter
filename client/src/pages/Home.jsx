@@ -11,8 +11,8 @@ export default function Home() {
       setLoading(true);
       setError(null);
       
-      // Redirect to backend OAuth endpoint
-      window.location.href = '/api/auth/google';
+      // Redirect to backend OAuth endpoint using env variable
+      window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
     } catch (err) {
       setError({
         type: 'NETWORK',
