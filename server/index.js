@@ -1,8 +1,7 @@
 // index.js
 require('dotenv').config();
 const mongoose = require('mongoose');
-const express = require('express'); 
-const app = require('./app');
+const createApp = require('./app');
 const path = require('path');
 
 const PORT = process.env.PORT || 5173;
@@ -13,16 +12,16 @@ mongoose.connect(process.env.MONGO_URI, {
 })
 .then(() => {
   console.log('✅ Connected to MongoDB');
-  
+  const app = createApp();
+
   // Serve static files from React build
   if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../client/dist')));
-    
+    app.use(require('express').static(path.join(__dirname, '../client/dist')));
     app.get('*', (req, res) => {
       res.sendFile(path.join(__dirname, '../client/dist/index.html'));
     });
   }
-  
+
   app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 })
 .catch((err) => console.error('❌ MongoDB connection error:', err));
