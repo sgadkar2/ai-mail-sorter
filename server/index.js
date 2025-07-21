@@ -14,13 +14,14 @@ mongoose.connect(process.env.MONGO_URI, {
   console.log('✅ Connected to MongoDB');
   const app = createApp();
 
-  // Serve static files from React build
-  if (process.env.NODE_ENV === 'production') {
-    app.use(require('express').static(path.join(__dirname, '../client/dist')));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-    });
-  }
+  // --- Static file serving block removed for Render deployment ---
+  // If you ever want to serve frontend from backend, uncomment below:
+  // if (process.env.NODE_ENV === 'production') {
+  //   app.use(require('express').static(path.join(__dirname, '../client/dist')));
+  //   app.get('*', (req, res) => {
+  //     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  //   });
+  // }
 
   app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 })
