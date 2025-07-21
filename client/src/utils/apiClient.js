@@ -4,8 +4,8 @@ import { getAuthToken, logout } from './auth';
 
 // Create axios instance with default config
 const apiClient = axios.create({
-  baseURL: '/api',
-  timeout: 30000, // 30 seconds
+  baseURL: import.meta.env.VITE_API_URL || '/api',
+  timeout: 30000,
 });
 
 // Request interceptor to add auth token
