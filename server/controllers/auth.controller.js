@@ -21,7 +21,7 @@ exports.initiateGoogleOAuth = async (req, res) => {
 exports.handleOAuthCallback = async (req, res) => {
   const { code, state } = req.query;
   
-  console.log(' OAuth callback hit - code:', !!code, 'state:', !!state);
+  //console.log(' OAuth callback hit - code:', !!code, 'state:', !!state);
 
   try {
     const { tokens } = await oauth2Client.getToken(code);

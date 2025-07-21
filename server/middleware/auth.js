@@ -12,21 +12,15 @@ exports.authenticate = async (req, res, next) => {
   const token = authHeader.split(' ')[1];
 
   try {
-    console.log('JWT_SECRET in middleware:', process.env.JWT_SECRET);
-    console.log('Token in middleware:', token);
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Decoded JWT:', decoded);
     
-    console.log('All users in DB (middleware):', await User.find());
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
     let user;
     if (process.env.NODE_ENV === 'test') {
       user = await global.__MONGO_CONN__.model('User').findById(decoded.userId);
     } else {
       user = await User.findById(decoded.userId);
     }
-
-    console.log('Decoded JWT:', decoded);
-    console.log('User found:', user); 
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid user' });

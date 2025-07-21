@@ -37,7 +37,7 @@ ${body}
       c => c.name.toLowerCase() === categoryName?.toLowerCase()
     );
 
-    console.log(category);
+    //console.log(category);
     // Fallback to 'Uncategorized' if no match found
     if (!category) {
       category = await Category.findOneAndUpdate(

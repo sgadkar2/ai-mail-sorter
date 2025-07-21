@@ -36,7 +36,7 @@ exports.addGmailAccount = async (req, res) => {
       // Don't override redirect_uri - use the one configured in Google Cloud Console
     });
     
-    console.log('🔗 Generated OAuth URL for add account with state:', state);
+    //console.log('🔗 Generated OAuth URL for add account with state:', state);
     
     res.json({ authUrl: url });
   } catch (error) {

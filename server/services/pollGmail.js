@@ -124,7 +124,6 @@ async function pollGmail() {
           },
         });
 
-        console.log(`📩 Saved: ${subject} — Category: ${categoryId || 'Uncategorized'}${unsubscribeLink ? ' 🔗' : ''}`);
       }
 
       if (historyRes.data.historyId) {
