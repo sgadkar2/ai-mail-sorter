@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { ErrorHandler } from './errorHandler';
 import { getAuthToken, logout } from './auth';
-
+console.log(import.meta.env.VITE_API_URL);
 // Create axios instance with default config
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
