@@ -14,17 +14,13 @@ async function verifyPuppeteer() {
     const puppeteer = require('puppeteer');
     console.log('🔍 Verifying Puppeteer installation...');
 
-    const executablePath = process.env.CHROME_BIN || puppeteer.executablePath();
-    console.log('📍 Using Chrome executable path:', executablePath);
-
-    if (!fs.existsSync(executablePath)) {
-      throw new Error(`Chrome binary not found at: ${executablePath}`);
-    }
+    const executablePath = puppeteer.executablePath();
+    console.log(`📍 Using Chrome executable path: ${executablePath}`);
 
     const browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      executablePath,
+      executablePath
     });
 
     await browser.close();
@@ -34,6 +30,7 @@ async function verifyPuppeteer() {
     console.log('💡 This might affect unsubscribe functionality, but the server will continue running');
   }
 }
+
 
 
 mongoose.connect(process.env.MONGO_URI, {
