@@ -14,6 +14,7 @@ async function verifyPuppeteer() {
     
     // Try to launch browser briefly to verify installation
     const browser = await puppeteer.launch({ 
+      executablePath: puppeteer.executablePath(),
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
