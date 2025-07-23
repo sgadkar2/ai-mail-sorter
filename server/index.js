@@ -7,6 +7,8 @@ const path = require('path');
 const PORT = process.env.PORT || 5173;
 
 const fs = require('fs');
+require('./scripts/installChrome');
+
 
 // Verify Puppeteer installation on startup
 async function verifyPuppeteer() {
@@ -30,6 +32,7 @@ async function verifyPuppeteer() {
     console.log('💡 This might affect unsubscribe functionality, but the server will continue running');
   }
 }
+
 
 
 
