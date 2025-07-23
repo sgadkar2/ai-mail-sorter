@@ -8,11 +8,11 @@
     "mocha": "mocha",
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "build": "npm run install:chrome",
-    "postinstall": "npm run install:chrome",
-    "migrate:encrypt": "node scripts/encryptExistingTokens.js",
-    "install:chrome": "node ./scripts/installChrome.js"
-  },
+    "build": "echo 'No build step required'",
+    "postinstall": "echo 'Skipping chrome install, Puppeteer handles it.'",
+    "migrate:encrypt": "node scripts/encryptExistingTokens.js"
+  }
+,
   "keywords": [],
   "author": "",
   "license": "ISC",
