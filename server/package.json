@@ -27,8 +27,7 @@
     "node-cron": "^4.2.1",
     "openai": "^5.10.1",
     "postal-mime": "^2.4.4",
-    "puppeteer-core": "10.4.0",
-    "chrome-aws-lambda": "10.1.0"
+    "puppeteer": "^21.3.8"
 
   },
   "devDependencies": {

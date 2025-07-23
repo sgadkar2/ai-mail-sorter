@@ -9,23 +9,13 @@ const PORT = process.env.PORT || 5173;
 const fs = require('fs');
 
 
-const chromium = require('chrome-aws-lambda');
-const puppeteer = require('puppeteer-core');
+const puppeteer = require('puppeteer');
 
 async function verifyPuppeteer() {
   try {
-    const isProd = process.env.AWS_EXECUTION_ENV || process.env.RENDER;
-
-    const executablePath = isProd
-      ? await chromium.executablePath
-      : '/usr/bin/google-chrome'; // fallback path for local dev or Docker
-
     const browser = await puppeteer.launch({
-      args: chromium.args,
-      executablePath,
-      headless: chromium.headless,
-      ignoreHTTPSErrors: true,
-      defaultViewport: chromium.defaultViewport,
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'], // Required for Render and other Linux hosts
     });
 
     const page = await browser.newPage();
