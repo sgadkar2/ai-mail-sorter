@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "jest",
-    "mocha": "mocha",
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "build": "echo 'No build step required'",
-    "postinstall": "echo 'Skipping chrome install, Puppeteer handles it.'",
-    "migrate:encrypt": "node scripts/encryptExistingTokens.js"
-  }
+ "scripts": {
+  "test": "jest",
+  "mocha": "mocha",
+  "start": "node index.js",
+  "dev": "nodemon index.js",
+  "build": "echo 'no-op'",
+  "migrate:encrypt": "node scripts/encryptExistingTokens.js"
+}
+
 ,
   "keywords": [],
   "author": "",
