@@ -10,28 +10,27 @@ const fs = require('fs');
 require('./scripts/installChrome');
 
 
-// Verify Puppeteer installation on startup
+const puppeteer = require('puppeteer');
+
 async function verifyPuppeteer() {
   try {
-    const puppeteer = require('puppeteer');
-    console.log('🔍 Verifying Puppeteer installation...');
-
     const executablePath = puppeteer.executablePath();
     console.log(`📍 Using Chrome executable path: ${executablePath}`);
 
     const browser = await puppeteer.launch({
-      headless: true,
+      headless: 'new',
+      executablePath,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      executablePath
     });
 
     await browser.close();
-    console.log('✅ Puppeteer Chrome installation verified successfully');
-  } catch (error) {
-    console.error('❌ Puppeteer verification failed:', error.message);
-    console.log('💡 This might affect unsubscribe functionality, but the server will continue running');
+    console.log('✅ Puppeteer Chrome verified and working');
+  } catch (err) {
+    console.error('❌ Puppeteer verification failed:', err.message);
+    console.log('💡 This might affect unsubscribe functionality, but server will continue');
   }
 }
+
 
 
 
