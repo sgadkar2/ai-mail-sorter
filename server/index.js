@@ -12,11 +12,12 @@ async function verifyPuppeteer() {
     const puppeteer = require('puppeteer');
     console.log('🔍 Verifying Puppeteer installation...');
     
-    // Try to launch browser briefly to verify installation
-    const browser = await puppeteer.launch({ 
-      executablePath: puppeteer.executablePath(),
+    const executablePath = process.env.CHROME_BIN || puppeteer.executablePath();
+
+    await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox'],
+      executablePath
     });
     
     await browser.close();
