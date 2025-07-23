@@ -4,7 +4,9 @@ const Email = require('../models/Email');
 const Category = require('../models/Category');
 const GmailAccount = require('../models/GmailAccount');
 const oauth2Client = require('../config/googleOAuth');
-const puppeteer = require('puppeteer');
+const chromium = require('chrome-aws-lambda');
+const puppeteer = require('puppeteer-core');
+
 
 // Utility to log access token scopes
 async function checkTokenScopes(accessToken) {
@@ -159,7 +161,7 @@ async function bulkUnsubscribe(req, res) {
         console.log('🔍 Launching Puppeteer with built-in Chrome...');
         
         // Use Puppeteer's built-in Chrome with optimized settings for Render
-        browser = await puppeteer.launch({ 
+        /*browser = await puppeteer.launch({ 
           headless: true,
           args: [
             '--no-sandbox', 
@@ -185,6 +187,12 @@ async function bulkUnsubscribe(req, res) {
             '--allow-running-insecure-content',
             '--disable-blink-features=AutomationControlled'
           ]
+        });*/
+        browser = await puppeteer.launch({
+          args: chromium.args,
+          executablePath: await chromium.executablePath,
+          headless: chromium.headless,
+          ignoreHTTPSErrors: true,
         });
         
         console.log('✅ Puppeteer launched successfully with built-in Chrome');
