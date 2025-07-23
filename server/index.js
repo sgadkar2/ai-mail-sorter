@@ -9,13 +9,14 @@ const PORT = process.env.PORT || 5173;
 const fs = require('fs');
 
 
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 
 async function verifyPuppeteer() {
   try {
     const browser = await puppeteer.launch({
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'], // Required for Render and other Linux hosts
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
     const page = await browser.newPage();

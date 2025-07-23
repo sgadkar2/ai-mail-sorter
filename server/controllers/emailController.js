@@ -4,7 +4,7 @@ const Email = require('../models/Email');
 const Category = require('../models/Category');
 const GmailAccount = require('../models/GmailAccount');
 const oauth2Client = require('../config/googleOAuth');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 
 
 // Utility to log access token scopes
@@ -160,9 +160,10 @@ async function bulkUnsubscribe(req, res) {
         console.log('🔍 Launching Puppeteer with built-in Chrome...');
         
         
-          browser = await puppeteer.launch({
+        browser = await puppeteer.launch({
+          executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
           headless: true,
-          args: ['--no-sandbox', '--disable-setuid-sandbox'], // Required for Render and other Linux hosts
+          args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
         
         console.log('✅ Puppeteer launched successfully with built-in Chrome');
