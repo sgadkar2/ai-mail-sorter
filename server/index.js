@@ -6,20 +6,27 @@ const path = require('path');
 
 const PORT = process.env.PORT || 5173;
 
+const fs = require('fs');
+
 // Verify Puppeteer installation on startup
 async function verifyPuppeteer() {
   try {
     const puppeteer = require('puppeteer');
     console.log('🔍 Verifying Puppeteer installation...');
-    
-    const executablePath = process.env.CHROME_BIN || puppeteer.executablePath();
 
-    await puppeteer.launch({
+    const executablePath = process.env.CHROME_BIN || puppeteer.executablePath();
+    console.log('📍 Using Chrome executable path:', executablePath);
+
+    if (!fs.existsSync(executablePath)) {
+      throw new Error(`Chrome binary not found at: ${executablePath}`);
+    }
+
+    const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox'],
-      executablePath
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      executablePath,
     });
-    
+
     await browser.close();
     console.log('✅ Puppeteer Chrome installation verified successfully');
   } catch (error) {
@@ -27,6 +34,7 @@ async function verifyPuppeteer() {
     console.log('💡 This might affect unsubscribe functionality, but the server will continue running');
   }
 }
+
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
