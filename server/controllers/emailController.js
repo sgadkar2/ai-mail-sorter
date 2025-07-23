@@ -237,18 +237,27 @@ async function processUnsubscribe(browser, email) {
         waitUntil: 'networkidle2',
         timeout: 30000 
       });
-    } catch (navigationError) {
-      console.log(`⚠️ Navigation error: ${navigationError.message}`);
-      
-      // Try with different wait strategy
+    
+      await page.waitForSelector('body', { timeout: 5000 });
+    
+    } catch (networkIdleError) {
+      console.warn(`⚠️ Navigation with 'networkidle2' failed: ${networkIdleError.message}`);
+    
+      // Optional: try to take a screenshot before fallback
+    
       try {
+        console.log(`🔁 Retrying with 'domcontentloaded' strategy...`);
         await page.goto(email.unsubscribeLink, { 
           waitUntil: 'domcontentloaded',
           timeout: 30000 
         });
-      } catch (fallbackError) {
-        console.log(`⚠️ Fallback navigation also failed: ${fallbackError.message}`);
-        throw new Error(`Failed to navigate to unsubscribe URL: ${navigationError.message}`);
+    
+        await page.waitForSelector('body', { timeout: 5000 });
+        console.log(`✅ Page loaded with domcontentloaded`);
+    
+      } catch (domError) {
+        console.error(`❌ Both navigation strategies failed`);
+        throw new Error(`Failed to navigate to unsubscribe URL: ${domError.message}`);
       }
     }
 
@@ -256,7 +265,7 @@ async function processUnsubscribe(browser, email) {
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Take a screenshot for debugging (optional) - with error handling
-    try {
+    /*try {
       await page.screenshot({ 
         path: `./unsubscribe-${Date.now()}.png`,
         fullPage: true 
@@ -264,17 +273,25 @@ async function processUnsubscribe(browser, email) {
       console.log('📸 Screenshot saved for debugging');
     } catch (screenshotError) {
       console.log('⚠️ Failed to take screenshot:', screenshotError.message);
-    }
+    }*/
 
     // Check for success indicators on the page
     const successIndicators = [
-      'successfully unsubscribed',
-      'unsubscribed successfully',
       'you have been unsubscribed',
-      'subscription cancelled',
-      'unsubscribe confirmed',
-      'thank you for unsubscribing'
+      'successfully unsubscribed',
+      'your preferences have been updated',
+      'subscription removed',
+      'removed from mailing list',
+      'email removed',
+      'you won’t receive more emails',
+      'we’re sorry to see you go',
+      'opt-out successful',
+      'opt out confirmed',
+      'you are now unsubscribed',
+      'thank you for confirming',
+      'preferences updated',
     ];
+    
 
     let pageContent = '';
     let hasSuccessMessage = false;
@@ -326,7 +343,9 @@ async function processUnsubscribe(browser, email) {
               className.includes('unsubscribe') ||
               id.includes('unsubscribe')) {
             
-            await element.click();
+            await page.evaluate(el => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), element);
+            await new Promise(r => setTimeout(r, 500)); // Allow scroll to settle
+            await element.click({ delay: 100 });
             clicked = true;
             clickedElement = `${selector} with text: "${text}"`;
             console.log(`✅ Clicked unsubscribe element: ${clickedElement}`);
@@ -356,7 +375,7 @@ async function processUnsubscribe(browser, email) {
         // Look for submit buttons
         const submitButtons = await page.$$('input[type="submit"], button[type="submit"]');
         if (submitButtons.length > 0) {
-          await submitButtons[0].click();
+          await submitButtons[0].safeClick();
           clicked = true;
           clickedElement = 'form submitted';
           console.log('✅ Submitted unsubscribe form');
@@ -379,7 +398,9 @@ async function processUnsubscribe(browser, email) {
             if (['button', 'a', 'input', 'div', 'span'].includes(tagName) &&
                 (text.includes('unsubscribe') || text.includes('opt-out') || text.includes('remove'))) {
               
-              await element.click();
+              await page.evaluate(el => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), element);
+              await new Promise(r => setTimeout(r, 500)); // Allow scroll to settle
+              await element.click({ delay: 100 });
               clicked = true;
               clickedElement = `${tagName} with text: "${text}"`;
               console.log(`✅ Clicked element: ${clickedElement}`);
