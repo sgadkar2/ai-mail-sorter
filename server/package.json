@@ -3,16 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
- "scripts": {
-  "test": "jest",
-  "mocha": "mocha",
-  "start": "node index.js",
-  "dev": "nodemon index.js",
-  "build": "echo 'no-op'",
-  "migrate:encrypt": "node scripts/encryptExistingTokens.js"
-}
-
-,
+  "scripts": {
+    "test": "jest",
+    "mocha": "mocha",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "build": "echo 'no-op'",
+    "migrate:encrypt": "node scripts/encryptExistingTokens.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -40,5 +38,8 @@
     "proxyquire": "^2.1.3",
     "sinon": "^21.0.0",
     "supertest": "^7.1.3"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
