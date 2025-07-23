@@ -8,9 +8,10 @@
     "mocha": "mocha",
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "build": "npx puppeteer browsers install chrome",
-    "postinstall": "npx puppeteer browsers install chrome",
-    "migrate:encrypt": "node scripts/encryptExistingTokens.js"
+    "build": "npm run install:chrome",
+    "postinstall": "npm run install:chrome",
+    "migrate:encrypt": "node scripts/encryptExistingTokens.js",
+    "install:chrome": "node ./scripts/installChrome.js"
   },
   "keywords": [],
   "author": "",
