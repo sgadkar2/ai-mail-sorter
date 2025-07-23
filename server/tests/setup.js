@@ -2,9 +2,7 @@
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 const path = require('path');
-console.log('Looking for .env.test at:', path.resolve(__dirname, '../.env.test'));
 require('dotenv').config({ path: path.resolve(__dirname, '../.env.test') });
-console.log('ENCRYPTION_KEY in setup.js:', process.env.ENCRYPTION_KEY);
 
 let mongoServer;
 

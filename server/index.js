@@ -6,12 +6,36 @@ const path = require('path');
 
 const PORT = process.env.PORT || 5173;
 
+// Verify Puppeteer installation on startup
+async function verifyPuppeteer() {
+  try {
+    const puppeteer = require('puppeteer');
+    console.log('🔍 Verifying Puppeteer installation...');
+    
+    // Try to launch browser briefly to verify installation
+    const browser = await puppeteer.launch({ 
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    
+    await browser.close();
+    console.log('✅ Puppeteer Chrome installation verified successfully');
+  } catch (error) {
+    console.error('❌ Puppeteer verification failed:', error.message);
+    console.log('💡 This might affect unsubscribe functionality, but the server will continue running');
+  }
+}
+
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => {
+.then(async () => {
   console.log('✅ Connected to MongoDB');
+  
+  // Verify Puppeteer installation
+  await verifyPuppeteer();
+  
   const app = createApp();
 
   // --- Static file serving block removed for Render deployment ---

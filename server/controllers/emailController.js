@@ -152,20 +152,64 @@ async function bulkUnsubscribe(req, res) {
     let browser;
 
     try {
-      // Update the puppeteer launch configuration
-      browser = await puppeteer.launch({ 
-        headless: true,
-        args: [
-          '--no-sandbox', 
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
-          '--single-process',
-          '--disable-gpu'
-        ]
-      });
+      // Simplified Puppeteer launch configuration for Render deployment
+      let browser;
+      
+      try {
+        console.log('🔍 Launching Puppeteer with built-in Chrome...');
+        
+        // Use Puppeteer's built-in Chrome with optimized settings for Render
+        browser = await puppeteer.launch({ 
+          headless: true,
+          args: [
+            '--no-sandbox', 
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process',
+            '--disable-gpu',
+            '--disable-web-security',
+            '--disable-features=VizDisplayCompositor',
+            '--disable-extensions',
+            '--disable-plugins',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding',
+            '--disable-field-trial-config',
+            '--disable-ipc-flooding-protection',
+            '--disable-cors',
+            '--disable-site-isolation-trials',
+            '--disable-features=VizDisplayCompositor,TranslateUI',
+            '--allow-running-insecure-content',
+            '--disable-blink-features=AutomationControlled'
+          ]
+        });
+        
+        console.log('✅ Puppeteer launched successfully with built-in Chrome');
+        
+      } catch (error) {
+        console.error('❌ Failed to launch Puppeteer:', error.message);
+        
+        // Fallback: Try with minimal arguments
+        try {
+          console.log('🔍 Trying fallback launch with minimal arguments...');
+          browser = await puppeteer.launch({ 
+            headless: true,
+            args: [
+              '--no-sandbox', 
+              '--disable-setuid-sandbox',
+              '--disable-web-security',
+              '--disable-cors'
+            ]
+          });
+          console.log('✅ Puppeteer launched successfully with fallback settings');
+        } catch (fallbackError) {
+          console.error('❌ Fallback launch also failed:', fallbackError.message);
+          throw new Error(`Failed to launch Puppeteer: ${error.message}. Please ensure Puppeteer is properly installed with Chrome.`);
+        }
+      }
 
       for (const email of emails) {
         try {
@@ -206,19 +250,59 @@ async function processUnsubscribe(browser, email) {
     console.log(`🔗 Processing unsubscribe for: ${email.subject}`);
     console.log(`📍 Unsubscribe URL: ${email.unsubscribeLink}`);
 
-    await page.goto(email.unsubscribeLink, { 
-      waitUntil: 'networkidle2',
-      timeout: 30000 
+    // Set user agent and headers to avoid CORS issues
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    
+    // Set extra headers to mimic a real browser
+    await page.setExtraHTTPHeaders({
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.5',
+      'Accept-Encoding': 'gzip, deflate',
+      'Connection': 'keep-alive',
+      'Upgrade-Insecure-Requests': '1',
+      'Sec-Fetch-Dest': 'document',
+      'Sec-Fetch-Mode': 'navigate',
+      'Sec-Fetch-Site': 'none',
+      'Cache-Control': 'max-age=0'
     });
+
+    // Disable web security to handle CORS issues
+    await page.setBypassCSP(true);
+
+    // Navigate to the unsubscribe URL with error handling
+    try {
+      await page.goto(email.unsubscribeLink, { 
+        waitUntil: 'networkidle2',
+        timeout: 30000 
+      });
+    } catch (navigationError) {
+      console.log(`⚠️ Navigation error: ${navigationError.message}`);
+      
+      // Try with different wait strategy
+      try {
+        await page.goto(email.unsubscribeLink, { 
+          waitUntil: 'domcontentloaded',
+          timeout: 30000 
+        });
+      } catch (fallbackError) {
+        console.log(`⚠️ Fallback navigation also failed: ${fallbackError.message}`);
+        throw new Error(`Failed to navigate to unsubscribe URL: ${navigationError.message}`);
+      }
+    }
 
     // Wait for content to load
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Take a screenshot for debugging (optional)
-    await page.screenshot({ 
-      path: `./unsubscribe-${Date.now()}.png`,
-      fullPage: true 
-    });
+    // Take a screenshot for debugging (optional) - with error handling
+    try {
+      await page.screenshot({ 
+        path: `./unsubscribe-${Date.now()}.png`,
+        fullPage: true 
+      });
+      console.log('📸 Screenshot saved for debugging');
+    } catch (screenshotError) {
+      console.log('⚠️ Failed to take screenshot:', screenshotError.message);
+    }
 
     // Check for success indicators on the page
     const successIndicators = [
@@ -230,10 +314,18 @@ async function processUnsubscribe(browser, email) {
       'thank you for unsubscribing'
     ];
 
-    const pageContent = await page.evaluate(() => document.body.innerText.toLowerCase());
-    const hasSuccessMessage = successIndicators.some(indicator => 
-      pageContent.includes(indicator)
-    );
+    let pageContent = '';
+    let hasSuccessMessage = false;
+    
+    try {
+      pageContent = await page.evaluate(() => document.body.innerText.toLowerCase());
+      hasSuccessMessage = successIndicators.some(indicator => 
+        pageContent.includes(indicator)
+      );
+    } catch (evaluateError) {
+      console.log('⚠️ Failed to evaluate page content:', evaluateError.message);
+      // Continue with empty content
+    }
 
     // FIXED: Use proper selectors instead of :contains()
     const unsubscribeSelectors = [
@@ -369,7 +461,8 @@ async function processUnsubscribe(browser, email) {
         hasSuccessMessage: hasSuccessMessage,
         finalSuccessMessage: finalSuccessMessage,
         finalUrl: finalUrl,
-        originalUrl: email.unsubscribeLink
+        originalUrl: email.unsubscribeLink,
+        pageContent: pageContent.substring(0, 200) + '...' // Include first 200 chars for debugging
       }
     };
 

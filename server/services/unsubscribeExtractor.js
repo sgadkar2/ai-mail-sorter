@@ -438,7 +438,6 @@ class UnsubscribeLinkExtractor {
     extractFromHeaders(headers) {
         const listUnsubscribe = headers['List-Unsubscribe'] || headers['list-unsubscribe'];
         if (listUnsubscribe) {
-            console.log('📧 Found List-Unsubscribe header:', listUnsubscribe);
             const match = listUnsubscribe.match(/<(https?:\/\/[^>]+)>/);
             if (match) {
                 const rawUrl = match[1];

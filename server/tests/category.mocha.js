@@ -22,9 +22,7 @@ describe('Category API', function() {
     app = createApp();
     user = await User.create({ email: 'test@example.com', name: 'Test User' });
     const jwt = require('jsonwebtoken');
-    console.log('JWT_SECRET in Test:', process.env.JWT_SECRET);
     token = jwt.sign({ userId: user._id.toString(), email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    console.log('Token in test:', token);  
 });
 
   after(async function() {
