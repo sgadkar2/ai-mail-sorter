@@ -14,11 +14,18 @@ const puppeteer = require('puppeteer-core');
 
 async function verifyPuppeteer() {
   try {
+    const isProd = process.env.AWS_EXECUTION_ENV || process.env.RENDER;
+
+    const executablePath = isProd
+      ? await chromium.executablePath
+      : '/usr/bin/google-chrome'; // fallback path for local dev or Docker
+
     const browser = await puppeteer.launch({
       args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
+      executablePath,
       headless: chromium.headless,
+      ignoreHTTPSErrors: true,
+      defaultViewport: chromium.defaultViewport,
     });
 
     const page = await browser.newPage();

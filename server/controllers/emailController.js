@@ -160,64 +160,27 @@ async function bulkUnsubscribe(req, res) {
       try {
         console.log('🔍 Launching Puppeteer with built-in Chrome...');
         
-        // Use Puppeteer's built-in Chrome with optimized settings for Render
-        /*browser = await puppeteer.launch({ 
-          headless: true,
-          args: [
-            '--no-sandbox', 
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--single-process',
-            '--disable-gpu',
-            '--disable-web-security',
-            '--disable-features=VizDisplayCompositor',
-            '--disable-extensions',
-            '--disable-plugins',
-            '--disable-background-timer-throttling',
-            '--disable-backgrounding-occluded-windows',
-            '--disable-renderer-backgrounding',
-            '--disable-field-trial-config',
-            '--disable-ipc-flooding-protection',
-            '--disable-cors',
-            '--disable-site-isolation-trials',
-            '--disable-features=VizDisplayCompositor,TranslateUI',
-            '--allow-running-insecure-content',
-            '--disable-blink-features=AutomationControlled'
-          ]
-        });*/
-        browser = await puppeteer.launch({
+        
+        const isProd = process.env.AWS_EXECUTION_ENV || process.env.RENDER;
+
+        const executablePath = isProd
+          ? await chromium.executablePath
+          : '/usr/bin/google-chrome'; // fallback path for local dev or Docker
+
+        const browser = await puppeteer.launch({
           args: chromium.args,
-          executablePath: await chromium.executablePath,
+          executablePath,
           headless: chromium.headless,
           ignoreHTTPSErrors: true,
+          defaultViewport: chromium.defaultViewport,
         });
         
         console.log('✅ Puppeteer launched successfully with built-in Chrome');
         
       } catch (error) {
         console.error('❌ Failed to launch Puppeteer:', error.message);
-        
-        // Fallback: Try with minimal arguments
-        try {
-          console.log('🔍 Trying fallback launch with minimal arguments...');
-          browser = await puppeteer.launch({ 
-            headless: true,
-            args: [
-              '--no-sandbox', 
-              '--disable-setuid-sandbox',
-              '--disable-web-security',
-              '--disable-cors'
-            ]
-          });
-          console.log('✅ Puppeteer launched successfully with fallback settings');
-        } catch (fallbackError) {
-          console.error('❌ Fallback launch also failed:', fallbackError.message);
-          throw new Error(`Failed to launch Puppeteer: ${error.message}. Please ensure Puppeteer is properly installed with Chrome.`);
+        return res.status(500).json({ error: 'Failed to launch Puppeteer for unsubscribe automation.' });
         }
-      }
 
       for (const email of emails) {
         try {
